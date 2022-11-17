@@ -21,6 +21,8 @@ target_sources(${COMPONENT_LIB} PRIVATE
     "tinyusb/src/portable/synopsys/dwc2/dcd_dwc2.c"
     "additions/src/tusb_audio.c"
     "additions/src/usb_descriptors.c"
+    "additions/src/tinyusb.c"
+    "additions/src/tusb_tasks.c"
 )
 
 target_compile_options(${COMPONENT_LIB} PUBLIC
