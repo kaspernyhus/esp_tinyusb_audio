@@ -1,5 +1,6 @@
 idf_component_register(SRCS "tinyusb/src/tusb.c" "tinyusb/src/common/tusb_fifo.c"
     INCLUDE_DIRS "." "tinyusb/src" "additions/include"
+    PRIV_INCLUDE_DIRS "additions/include_private"
     REQUIRES freertos soc main)
 
 target_sources(${COMPONENT_LIB} PRIVATE
@@ -23,6 +24,8 @@ target_sources(${COMPONENT_LIB} PRIVATE
     "additions/src/usb_descriptors.c"
     "additions/src/tinyusb.c"
     "additions/src/tusb_tasks.c"
+    "additions/src/tusb_cdc_acm.c"
+    "additions/src/cdc.c"
 )
 
 target_compile_options(${COMPONENT_LIB} PUBLIC
