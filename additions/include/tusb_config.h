@@ -26,6 +26,8 @@
 #ifndef _TUSB_CONFIG_H_
 #define _TUSB_CONFIG_H_
 
+#include "sdkconfig.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,6 +39,14 @@ extern "C" {
 // defined by compiler flags for flexibility
 #ifndef CFG_TUSB_MCU
   #error CFG_TUSB_MCU must be defined
+#endif
+
+#ifndef CONFIG_TINYUSB_CDC_ENABLED
+#   define CONFIG_TINYUSB_CDC_ENABLED 0
+#endif
+
+#ifndef CONFIG_ESP_TINYUSB_AUDIO_ENABLED
+#   define CONFIG_ESP_TINYUSB_AUDIO_ENABLED 0
 #endif
 
 // RHPort number used for device can be defined by board.mk, default to port 0
@@ -90,12 +100,21 @@ extern "C" {
 #endif
 
 //------------- CLASS -------------//
-#define CFG_TUD_CDC               0
+#define CFG_TUD_CDC               CONFIG_TINYUSB_CDC_ENABLED
 #define CFG_TUD_MSC               0
 #define CFG_TUD_HID               0
 #define CFG_TUD_MIDI              0
-#define CFG_TUD_AUDIO             1
+#define CFG_TUD_AUDIO             CONFIG_ESP_TINYUSB_AUDIO_ENABLED
 #define CFG_TUD_VENDOR            0
+
+
+//--------------------------------------------------------------------
+// CDC CLASS DRIVER CONFIGURATION
+//--------------------------------------------------------------------
+
+// CDC FIFO size of TX and RX
+#define CFG_TUD_CDC_RX_BUFSIZE      CONFIG_ESP_TINYUSB_CDC_RX_BUFSIZE
+#define CFG_TUD_CDC_TX_BUFSIZE      CONFIG_ESP_TINYUSB_CDC_TX_BUFSIZE
 
 //--------------------------------------------------------------------
 // AUDIO CLASS DRIVER CONFIGURATION
