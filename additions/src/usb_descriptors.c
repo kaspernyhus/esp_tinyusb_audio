@@ -124,7 +124,7 @@ uint8_t const desc_configuration[] =
 
     #if CONFIG_ESP_TINYUSB_CDC_ENABLED
         // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-        TUD_CDC_DESCRIPTOR(ITF_NUM_CDC, 4, 0x81, 8, 0x02, 0x82, 64),
+        TUD_CDC_DESCRIPTOR(ITF_NUM_CDC, 4, 0x83, 8, 0x02, 0x82, 64),
     #endif
 
     #if CONFIG_ESP_TINYUSB_AUDIO_ENABLED
@@ -150,8 +150,8 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index)
 char const *string_desc_arr[] =
     {
         (const char[]){0x09, 0x04}, // 0: is supported language is English (0x0409)
-        "PaniRCorp",                // 1: Manufacturer
-        "MicNode - 2ch",            // 2: Product
+        "Bang & Olufsen",                // 1: Manufacturer
+        "Classics Adapter",            // 2: Product
         "123456",                   // 3: Serials, should use chip ID
         "UAC2",                     // 4: Audio Interface
 };
