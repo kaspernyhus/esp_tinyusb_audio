@@ -72,6 +72,7 @@ uint8_t const *tud_descriptor_device_cb(void)
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 
+#if CONFIG_ESP_TINYUSB_AUDIO_ENABLED
 #define TUD_AUDIO_MIC_TWO_CH_DESCRIPTOR(_itfnum, _stridx, _nBytesPerSample, _nBitsUsedPerSample, _epin, _epsize)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
     /* Standard Interface Association Descriptor (IAD) */                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
     TUD_AUDIO_DESC_IAD(/*_firstitfs*/ _itfnum, /*_nitfs*/ 0x02, /*_stridx*/ 0x00),                                                                                                                                                                                                                                                                                                                                                                                                                                          /* Standard AC Interface Descriptor(4.7.1) */                                \
@@ -87,6 +88,7 @@ uint8_t const *tud_descriptor_device_cb(void)
         TUD_AUDIO_DESC_TYPE_I_FORMAT(_nBytesPerSample, _nBitsUsedPerSample),                                                                                                                                                                                                                                                                                                                                                                                                                                                /* Standard AS Isochronous Audio Data Endpoint Descriptor(4.10.1.1) */       \
         TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ _epin, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_ASYNCHRONOUS | TUSB_ISO_EP_ATT_DATA), /*_maxEPsize*/ _epsize, /*_interval*/ TUD_OPT_HIGH_SPEED ? 0x04 : 0x01),                                                                                                                                                                                                                                                                                                       /* Class-Specific AS Isochronous Audio Data Endpoint Descriptor(4.10.1.2) */ \
         TUD_AUDIO_DESC_CS_AS_ISO_EP(/*_attr*/ AUDIO_CS_AS_ISO_DATA_EP_ATT_NON_MAX_PACKETS_OK, /*_ctrl*/ AUDIO_CTRL_NONE, /*_lockdelayunit*/ AUDIO_CS_AS_ISO_DATA_EP_LOCK_DELAY_UNIT_UNDEFINED, /*_lockdelay*/ 0x0000)
+#endif
 
 enum
 {
@@ -115,8 +117,10 @@ uint8_t const desc_configuration[] =
     // Interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
+    #if CONFIG_ESP_TINYUSB_AUDIO_ENABLED
     // Interface number, string index, EP Out & EP In address, EP size
     TUD_AUDIO_MIC_TWO_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 0, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * 8, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
+    #endif
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR

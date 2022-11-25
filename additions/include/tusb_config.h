@@ -41,8 +41,8 @@ extern "C" {
   #error CFG_TUSB_MCU must be defined
 #endif
 
-#ifndef CONFIG_TINYUSB_CDC_ENABLED
-#   define CONFIG_TINYUSB_CDC_ENABLED 0
+#ifndef CONFIG_ESP_TINYUSB_CDC_ENABLED
+#   define CONFIG_ESP_TINYUSB_CDC_ENABLED 0
 #endif
 
 #ifndef CONFIG_ESP_TINYUSB_AUDIO_ENABLED
@@ -100,7 +100,7 @@ extern "C" {
 #endif
 
 //------------- CLASS -------------//
-#define CFG_TUD_CDC               CONFIG_TINYUSB_CDC_ENABLED
+#define CFG_TUD_CDC               CONFIG_ESP_TINYUSB_CDC_ENABLED
 #define CFG_TUD_MSC               0
 #define CFG_TUD_HID               0
 #define CFG_TUD_MIDI              0

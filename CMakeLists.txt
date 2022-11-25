@@ -20,13 +20,23 @@ target_sources(${COMPONENT_LIB} PRIVATE
     "tinyusb/src/class/vendor/vendor_device.c"
     "tinyusb/src/class/video/video_device.c"
     "tinyusb/src/portable/synopsys/dwc2/dcd_dwc2.c"
-    "additions/src/tusb_audio.c"
     "additions/src/usb_descriptors.c"
     "additions/src/tinyusb.c"
     "additions/src/tusb_tasks.c"
-    "additions/src/tusb_cdc_acm.c"
-    "additions/src/cdc.c"
 )
+
+if(CONFIG_ESP_TINYUSB_CDC_ENABLED)
+    target_sources(${COMPONENT_LIB} PRIVATE
+        "additions/src/tusb_cdc_acm.c"
+        "additions/src/cdc.c"
+    )
+endif() # CONFIG_ESP_TINYUSB_CDC_ENABLED
+
+if(CONFIG_ESP_TINYUSB_AUDIO_ENABLED)
+target_sources(${COMPONENT_LIB} PRIVATE
+        "additions/src/tusb_audio.c"
+    )
+endif() # CONFIG_ESP_TINYUSB_AUDIO_ENABLED
 
 target_compile_options(${COMPONENT_LIB} PUBLIC
     "-Wno-format"

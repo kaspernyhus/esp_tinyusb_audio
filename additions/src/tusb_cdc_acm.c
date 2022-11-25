@@ -102,7 +102,7 @@ void tud_cdc_rx_cb(uint8_t itf)
     while (tud_cdc_n_available(itf)) {
         int read_res = tud_cdc_n_read(  itf,
                                         acm->rx_tfbuf,
-                                        CONFIG_TINYUSB_CDC_RX_BUFSIZE );
+                                        CONFIG_ESP_TINYUSB_CDC_RX_BUFSIZE );
         int res = xRingbufferSend(acm->rx_unread_buf,
                                   acm->rx_tfbuf,
                                   read_res, 0);
@@ -391,7 +391,7 @@ esp_err_t tusb_cdc_acm_init(const tinyusb_config_cdcacm_t *cfg)
         return ESP_ERR_NO_MEM;
     }
 
-    acm->rx_tfbuf = malloc(CONFIG_TINYUSB_CDC_RX_BUFSIZE);
+    acm->rx_tfbuf = malloc(CONFIG_ESP_TINYUSB_CDC_RX_BUFSIZE);
     if (!acm->rx_tfbuf) {
         ESP_LOGE(TAG, "Creation buffer error");
         free_obj(itf);
