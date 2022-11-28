@@ -29,7 +29,7 @@ menu "ESP TinyUSB Audio"
 
         config ESP_TINYUSB_AUDIO_SAMPLE_RATE
             depends on ESP_TINYUSB_AUDIO_ENABLED
-            int "Audio sample rate"
+            int "Audio sample rate (Hz)"
             default 48000
             range 8000 48000
             help
@@ -53,11 +53,6 @@ menu "ESP TinyUSB Audio"
                     24bit audio
         endchoice
 
-        config AUDIO_BYTES_PER_SAMPLE
-            int
-            default 2 if ESP_AUDIO_16_BIT
-            default 3 if ESP_AUDIO_24_BIT
-
         choice ESP_TINYUSB_AUDIO_CHANNELS
             prompt "Audio channels"
             depends on ESP_TINYUSB_AUDIO_ENABLED
@@ -80,6 +75,11 @@ menu "ESP TinyUSB Audio"
                 help
                     4 audio channels
         endchoice
+
+        config AUDIO_BYTES_PER_SAMPLE
+            int
+            default 2 if ESP_AUDIO_16_BIT
+            default 3 if ESP_AUDIO_24_BIT
 
         config AUDIO_CHANNELS
             int
