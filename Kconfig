@@ -26,6 +26,67 @@ menu "ESP TinyUSB Audio"
             default n
             help
                 Enable TinyUSB Audio feature.
+
+        config ESP_TINYUSB_AUDIO_SAMPLE_RATE
+            depends on ESP_TINYUSB_AUDIO_ENABLED
+            int "Audio sample rate"
+            default 48000
+            range 8000 48000
+            help
+                Audio sample rate.
+
+        choice ESP_TINYUSB_AUDIO_BIT_DEPTH
+            prompt "Audio bit depth"
+            depends on ESP_TINYUSB_AUDIO_ENABLED
+            default ESP_AUDIO_16_BIT
+            help
+                Audio bit depth
+
+            config ESP_AUDIO_16_BIT
+                bool "16bit"
+                help
+                    Default. 16bit audio
+
+            config ESP_AUDIO_24_BIT
+                bool "24bit"
+                help
+                    24bit audio
+        endchoice
+
+        config AUDIO_BYTES_PER_SAMPLE
+            int
+            default 2 if ESP_AUDIO_16_BIT
+            default 3 if ESP_AUDIO_24_BIT
+
+        choice ESP_TINYUSB_AUDIO_CHANNELS
+            prompt "Audio channels"
+            depends on ESP_TINYUSB_AUDIO_ENABLED
+            default ESP_AUDIO_1_CH
+            help
+                Number of audio channels.
+
+            config ESP_AUDIO_1_CH
+                bool "1"
+                help
+                    1 audio channels.
+
+            config ESP_AUDIO_2_CH
+                bool "2"
+                help
+                    2 audio channels
+
+            config ESP_AUDIO_4_CH
+                bool "4"
+                help
+                    4 audio channels
+        endchoice
+
+        config AUDIO_CHANNELS
+            int
+            default 1 if ESP_AUDIO_1_CH
+            default 2 if ESP_AUDIO_2_CH
+            default 3 if ESP_AUDIO_4_CH
+
     endmenu
 
     menu "Communication Device Class (CDC)"

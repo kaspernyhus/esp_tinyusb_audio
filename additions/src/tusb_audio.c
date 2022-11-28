@@ -20,7 +20,7 @@
 #include "sdkconfig.h"
 
 #ifndef AUDIO_SAMPLE_RATE
-#define AUDIO_SAMPLE_RATE   48000
+#define AUDIO_SAMPLE_RATE CONFIG_ESP_TINYUSB_AUDIO_SAMPLE_RATE
 #endif
 
 static const char* TAG = "TUSB_AUDIO";
@@ -36,22 +36,31 @@ uint8_t clkValid;
 audio_control_range_2_n_t(1) volumeRng[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; 		// Volume range state
 audio_control_range_4_n_t(1) sampleFreqRng; 					                	// Sample frequency range state
 
-// Audio test data
-uint16_t test_buffer_audio[CFG_TUD_AUDIO_EP_SZ_IN/2];
-uint16_t startVal = 0;
+// Stores audio configuration and audio callback
+static tinyusb_config_audio_t audio_config;
 
-esp_err_t tusb_audio_init(void)
+// Buffer to hold audio data to be send in next transfer
+uint8_t audio_tx_buffer[CFG_TUD_AUDIO_EP_SZ_IN];
+uint16_t bytes_to_send = 0;
+
+/**
+ *
+*/
+esp_err_t tusb_audio_init(const tinyusb_config_audio_t* cfg)
 {
-    // Init values
-    sampFreq = AUDIO_SAMPLE_RATE;
-    clkValid = 1;
+  // store audio config and callback
+  audio_config = *cfg;
 
-    sampleFreqRng.wNumSubRanges = 1;
-    sampleFreqRng.subrange[0].bMin = AUDIO_SAMPLE_RATE;
-    sampleFreqRng.subrange[0].bMax = AUDIO_SAMPLE_RATE;
-    sampleFreqRng.subrange[0].bRes = 0;
+  // Init values
+  sampFreq = AUDIO_SAMPLE_RATE;
+  clkValid = 1;
 
-    return ESP_OK;
+  sampleFreqRng.wNumSubRanges = 1;
+  sampleFreqRng.subrange[0].bMin = AUDIO_SAMPLE_RATE;
+  sampleFreqRng.subrange[0].bMax = AUDIO_SAMPLE_RATE;
+  sampleFreqRng.subrange[0].bRes = 0;
+
+  return ESP_OK;
 }
 
 //--------------------------------------------------------------------+
@@ -307,39 +316,37 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const * 
   return false; 	// Yet not implemented
 }
 
-// bool tud_audio_tx_done_pre_load_cb(uint8_t rhport, uint8_t itf, uint8_t ep_in, uint8_t cur_alt_setting)
-// {
-//   (void) rhport;
-//   (void) itf;
-//   (void) ep_in;
-//   (void) cur_alt_setting;
+bool tud_audio_tx_done_pre_load_cb(uint8_t rhport, uint8_t itf, uint8_t ep_in, uint8_t cur_alt_setting)
+{
+  (void) rhport;
+  (void) itf;
+  (void) ep_in;
+  (void) cur_alt_setting;
 
-//   tud_audio_write ((uint8_t *)test_buffer_audio, CFG_TUD_AUDIO_EP_SZ_IN);
+  tud_audio_write(audio_tx_buffer, bytes_to_send);
 
-//   return true;
-// }
+  return true;
+}
 
-// bool tud_audio_tx_done_post_load_cb(uint8_t rhport, uint16_t n_bytes_copied, uint8_t itf, uint8_t ep_in, uint8_t cur_alt_setting)
-// {
-//   (void) rhport;
-//   (void) n_bytes_copied;
-//   (void) itf;
-//   (void) ep_in;
-//   (void) cur_alt_setting;
+bool tud_audio_tx_done_post_load_cb(uint8_t rhport, uint16_t n_bytes_copied, uint8_t itf, uint8_t ep_in, uint8_t cur_alt_setting)
+{
+  (void) rhport;
+  (void) n_bytes_copied;
+  (void) itf;
+  (void) ep_in;
+  (void) cur_alt_setting;
 
-//   for (size_t cnt = 0; cnt < CFG_TUD_AUDIO_EP_SZ_IN/2; cnt++)
-//   {
-//     test_buffer_audio[cnt] = startVal++;
-//   }
+  if (audio_config.audio_tx_callback) {
+    audio_config.audio_tx_callback(audio_tx_buffer, &bytes_to_send);
+  }
 
-//   return true;
-// }
+  return true;
+}
 
 bool tud_audio_set_itf_close_EP_cb(uint8_t rhport, tusb_control_request_t const * p_request)
 {
   (void) rhport;
   (void) p_request;
-  startVal = 0;
 
   return true;
 }

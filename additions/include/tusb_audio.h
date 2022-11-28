@@ -22,8 +22,13 @@ extern "C" {
 #include "freertos/timers.h"
 #include "tusb.h"
 
+typedef void (*tusb_audio_callback_t)(uint8_t* buffer, uint16_t* bytes);
 
-esp_err_t tusb_audio_init(void);
+typedef struct {
+    tusb_audio_callback_t audio_tx_callback;
+} tinyusb_config_audio_t;
+
+esp_err_t tusb_audio_init(const tinyusb_config_audio_t* cfg);
 
 #ifdef __cplusplus
 }

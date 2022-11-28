@@ -134,17 +134,23 @@ extern "C" {
   + TUD_AUDIO_DESC_STD_AS_ISO_EP_LEN\
   + TUD_AUDIO_DESC_CS_AS_ISO_EP_LEN)
 
-
 // Have a look into audio_device.h for all configurations
-#define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                                 TUD_AUDIO_MIC_TWO_CH_DESC_LEN
+
+#if CONFIG_AUDIO_CHANNELS == 4
+  #define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                                 TUD_AUDIO_MIC_FOUR_CH_DESC_LEN
+#elif CONFIG_AUDIO_CHANNELS == 2
+  #define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                                 TUD_AUDIO_MIC_TWO_CH_DESC_LEN
+#else
+  #define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                                 TUD_AUDIO_MIC_ONE_CH_DESC_LEN
+#endif
 
 #define CFG_TUD_AUDIO_FUNC_1_N_AS_INT                                 1
 #define CFG_TUD_AUDIO_FUNC_1_CTRL_BUF_SZ                              64
 
 #define CFG_TUD_AUDIO_ENABLE_EP_IN                                    1
-#define CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX                    2         // This value is not required by the driver, it parses this information from the descriptor once the alternate interface is set by the host - we use it for the setup
+#define CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX                    CONFIG_AUDIO_BYTES_PER_SAMPLE         // This value is not required by the driver, it parses this information from the descriptor once the alternate interface is set by the host - we use it for the setup
 
-#define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX                            2         // This value is not required by the driver, it parses this information from the descriptor once the alternate interface is set by the host - we use it for the setup
+#define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX                            CONFIG_AUDIO_CHANNELS         // This value is not required by the driver, it parses this information from the descriptor once the alternate interface is set by the host - we use it for the setup
 
 #define CFG_TUD_AUDIO_EP_SZ_IN                                        48 * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX     // 48 Samples (48 kHz) x 2 Bytes/Sample x CFG_TUD_AUDIO_N_CHANNELS_TX Channels - the Windows driver always needs an extra sample per channel of space more, otherwise it complains... found by trial and error
 #define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX                             CFG_TUD_AUDIO_EP_SZ_IN
