@@ -51,9 +51,9 @@ tusb_desc_device_t const desc_device =
         .bDeviceProtocol = MISC_PROTOCOL_IAD,
         .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
 
-        .idVendor = 0xCafe,
-        .idProduct = USB_PID,
-        .bcdDevice = 0x0100,
+        .idVendor = CONFIG_ESP_TINYUSB_DESC_CUSTOM_VID,
+        .idProduct = CONFIG_ESP_TINYUSB_DESC_CUSTOM_PID,
+        .bcdDevice = CONFIG_ESP_TINYUSB_DESC_BCD_DEVICE,
 
         .iManufacturer = 0x01,
         .iProduct = 0x02,
@@ -130,13 +130,13 @@ uint8_t const desc_configuration[] =
     #if CONFIG_ESP_TINYUSB_AUDIO_ENABLED
         #if CONFIG_AUDIO_CHANNELS == 4
             // Interface number, string index, EP Out & EP In address, EP size
-            TUD_AUDIO_MIC_FOUR_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 0, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * 8, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
+            TUD_AUDIO_MIC_FOUR_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 5, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * 8, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
         #elif CONFIG_AUDIO_CHANNELS == 2
             // Interface number, string index, EP Out & EP In address, EP size
-            TUD_AUDIO_MIC_TWO_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 0, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * 8, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
+            TUD_AUDIO_MIC_TWO_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 5, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * 8, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
         #else
             // Interface number, string index, EP Out & EP In address, EP size
-            TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 0, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * 8, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
+            TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 5, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * 8, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
         #endif
     #endif
 };
@@ -156,13 +156,22 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index)
 
 // array of pointer to string descriptors
 char const *string_desc_arr[] =
-    {
-        (const char[]){0x09, 0x04}, // 0: is supported language is English (0x0409)
-        "Micnode",                // 1: Manufacturer
-        "test",            // 2: Product
-        "123456",                   // 3: Serials, should use chip ID
-        "UAC2",                     // 4: Audio Interface
-    };
+{
+    (const char[]){0x09, 0x04},                     // 0: is supported language is English (0x0409)
+    CONFIG_ESP_TINYUSB_DESC_MANUFACTURER_STRING,    // 1: Manufacturer
+    CONFIG_ESP_TINYUSB_DESC_PRODUCT_STRING,         // 2: Product
+    CONFIG_ESP_TINYUSB_DESC_SERIAL_STRING,          // 3: Serials, should use chip ID
+    #if CONFIG_ESP_TINYUSB_CDC_ENABLED
+    CONFIG_ESP_TINYUSB_DESC_CDC_STRING,             // 4: CDC Interface
+    #else
+    "",
+    #endif
+    #if CONFIG_ESP_TINYUSB_AUDIO_ENABLED
+    CONFIG_ESP_TINYUSB_DESC_AUDIO_STRING,           // 5: Audio Interface
+    #else
+    "",
+    #endif
+};
 
 static uint16_t _desc_str[32];
 
@@ -174,13 +183,10 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 
     uint8_t chr_count;
 
-    if (index == 0)
-    {
+    if (index == 0) {
         memcpy(&_desc_str[1], string_desc_arr[0], 2);
         chr_count = 1;
-    }
-    else
-    {
+    } else {
         // Convert ASCII string into UTF-16
 
         if (!(index < sizeof(string_desc_arr) / sizeof(string_desc_arr[0])))
