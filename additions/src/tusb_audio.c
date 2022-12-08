@@ -36,21 +36,11 @@ uint8_t clkValid;
 audio_control_range_2_n_t(1) volumeRng[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; 		// Volume range state
 audio_control_range_4_n_t(1) sampleFreqRng; 					                	// Sample frequency range state
 
-// Stores audio configuration and audio callback
-static tinyusb_config_audio_t audio_config;
-
-// Buffer to hold audio data to be send in next transfer
-uint8_t audio_tx_buffer[CFG_TUD_AUDIO_EP_SZ_IN];
-uint16_t bytes_to_send = 0;
-
 /**
  *
 */
-esp_err_t tusb_audio_init(const tinyusb_config_audio_t* cfg)
+esp_err_t tusb_audio_init(void)
 {
-  // store audio config and callback
-  audio_config = *cfg;
-
   // Init values
   sampFreq = AUDIO_SAMPLE_RATE;
   clkValid = 1;
@@ -316,50 +306,10 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const * 
   return false; 	// Yet not implemented
 }
 
-bool tud_audio_tx_done_pre_load_cb(uint8_t rhport, uint8_t itf, uint8_t ep_in, uint8_t cur_alt_setting)
-{
-  (void) rhport;
-  (void) itf;
-  (void) ep_in;
-  (void) cur_alt_setting;
-
-  tud_audio_write(audio_tx_buffer, bytes_to_send);
-
-  return true;
-}
-
-bool tud_audio_tx_done_post_load_cb(uint8_t rhport, uint16_t n_bytes_copied, uint8_t itf, uint8_t ep_in, uint8_t cur_alt_setting)
-{
-  (void) rhport;
-  (void) n_bytes_copied;
-  (void) itf;
-  (void) ep_in;
-  (void) cur_alt_setting;
-
-  if (audio_config.audio_tx_callback) {
-    audio_config.audio_tx_callback(audio_tx_buffer, &bytes_to_send);
-  }
-
-  return true;
-}
-
 bool tud_audio_set_itf_close_EP_cb(uint8_t rhport, tusb_control_request_t const * p_request)
 {
   (void) rhport;
   (void) p_request;
 
   return true;
-}
-
-// Invoked when device is mounted
-void tud_mount_cb(void)
-{
-  ESP_LOGI(TAG, "USB mounted.");
-}
-
-// Invoked when device is unmounted
-//! Not working
-void tud_umount_cb(void)
-{
-  ESP_LOGI(TAG, "USB unmounted.");
 }
