@@ -1,6 +1,6 @@
 /**
  * @file tusb_audio.c
- * @author your name (you@domain.com)
+ * @author Kasper Nyhus (kank@bang-olufsen.dk)
  * @brief
  * @version 0.1
  * @date 2022-10-23
